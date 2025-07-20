@@ -1,6 +1,10 @@
 import { ExchangeRateResponse } from '../types';
 
-const EXCHANGE_RATE_URL = '/proxy-api/v1/currencies/usd/rates/today';
+// Use different URLs based on environment
+const isDevelopment = import.meta.env.DEV;
+const EXCHANGE_RATE_URL = isDevelopment 
+  ? '/proxy-api/v1/currencies/usd/rates/today'
+  : 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://kurs.resenje.org/api/v1/currencies/usd/rates/today');
 
 export const fetchExchangeRate = async (): Promise<ExchangeRateResponse> => {
   try {
@@ -10,7 +14,12 @@ export const fetchExchangeRate = async (): Promise<ExchangeRateResponse> => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
+    let data = await response.json();
+
+    // If using AllOrigins proxy in production, extract the actual data
+    if (!isDevelopment && data.contents) {
+      data = JSON.parse(data.contents);
+    }
 
     if (!data || !data.exchange_middle || !data.date) {
       throw new Error('No exchange rate data available');

@@ -1,0 +1,5 @@
+{
+  "typescript.preferences.include.package-json-auto-imports": "on",
+  "typescript.suggest.auto-imports": true,
+  "typescript.preferences.useAliasesForRenames": false
+}
