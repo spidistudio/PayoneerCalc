@@ -1,7 +1,6 @@
 import { ExchangeRateResponse } from '../types';
 
-const EXCHANGE_RATE_URL =
-  'https://kurs.resenje.org/api/v1/currencies/usd/rates/today';
+const EXCHANGE_RATE_URL = '/proxy-api/v1/currencies/usd/rates/today';
 
 export const fetchExchangeRate = async (): Promise<ExchangeRateResponse> => {
   try {

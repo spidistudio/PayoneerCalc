@@ -201,7 +201,7 @@ function App() {
 
       {/* Fiverr Credit */}
       <div className="fixed bottom-4 right-4 text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-sm border border-gray-200 dark:border-gray-700">
-        Fiverr: milan_code
+        <a href="https://www.fiverr.com/milan_code" target="_blank">Fiverr: milan_code</a>
       </div>
     </div>
   );
