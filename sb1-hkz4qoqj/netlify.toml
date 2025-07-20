@@ -1,9 +1,0 @@
-[[redirects]]
-from = "/proxy-api/*"
-to = "https://kurs.resenje.org/api/:splat"
-status = 200
-force = true
-
-[build]
-command = "npx vite build"
-publish = "dist"
