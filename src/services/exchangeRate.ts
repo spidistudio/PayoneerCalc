@@ -9,12 +9,17 @@ type ExchangeRateApiResponse = {
   conversion_rates?: Record<string, number>;
   exchange_middle?: number;
   date?: string;
+  rates?: Record<string, number>;
 };
 
 export const normalizeExchangeRate = (
   payload: ExchangeRateApiResponse
 ): ExchangeRateResponse => {
-  const rate = payload.exchange_middle ?? payload.conversion_rates?.RSD;
+  const rate =
+    payload.exchange_middle ??
+    payload.conversion_rates?.RSD ??
+    payload.rates?.RSD ??
+    payload.rates?.rsd;
 
   if (typeof rate !== 'number' || !Number.isFinite(rate) || rate <= 0) {
     throw new Error('No exchange rate data available');
