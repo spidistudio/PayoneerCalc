@@ -84,6 +84,10 @@ src/
 ├── utils/         # Utility functions
 └── App.tsx        # Main application component
 ```
+## Fetching exchange-rate error fix
+
+The failure was caused by the production fetch using a blocked proxy path from GitHub Pages.
+I replaced it with a direct public exchange-rate API and normalized the response to the app’s expected shape in src/services/exchangeRate.ts.
 
 ## 🔍 Troubleshooting
 

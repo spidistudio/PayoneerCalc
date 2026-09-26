@@ -1,30 +1,57 @@
 import { ExchangeRateResponse } from '../types';
 
-// Use different URLs based on environment
-const isDevelopment = import.meta.env.DEV;
-const EXCHANGE_RATE_URL = isDevelopment 
-  ? '/proxy-api/v1/currencies/usd/rates/today'
-  : 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://kurs.resenje.org/api/v1/currencies/usd/rates/today');
+const EXCHANGE_RATE_URL = 'https://open.er-api.com/v6/latest/USD';
+
+type ExchangeRateApiResponse = {
+  result?: string;
+  time_last_update_utc?: string;
+  time_last_update_unix?: number;
+  conversion_rates?: Record<string, number>;
+  exchange_middle?: number;
+  date?: string;
+};
+
+export const normalizeExchangeRate = (
+  payload: ExchangeRateApiResponse
+): ExchangeRateResponse => {
+  const rate = payload.exchange_middle ?? payload.conversion_rates?.RSD;
+
+  if (typeof rate !== 'number' || !Number.isFinite(rate) || rate <= 0) {
+    throw new Error('No exchange rate data available');
+  }
+
+  const date =
+    payload.date ||
+    payload.time_last_update_utc ||
+    new Date(
+      payload.time_last_update_unix ? payload.time_last_update_unix * 1000 : Date.now()
+    ).toISOString();
+
+  return {
+    exchange_middle: Number(rate),
+    date: String(date),
+  };
+};
 
 export const fetchExchangeRate = async (): Promise<ExchangeRateResponse> => {
   try {
-    const response = await fetch(EXCHANGE_RATE_URL);
+    const response = await fetch(EXCHANGE_RATE_URL, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    let data = await response.json();
+    const data = (await response.json()) as ExchangeRateApiResponse;
 
-    // If using AllOrigins proxy in production, extract the actual data
-    if (!isDevelopment && data.contents) {
-      data = JSON.parse(data.contents);
+    if (data.result && data.result !== 'success') {
+      throw new Error('Exchange rate API returned an unsuccessful result');
     }
 
-    if (!data || !data.exchange_middle || !data.date) {
-      throw new Error('No exchange rate data available');
-    }
-    return data;
+    return normalizeExchangeRate(data);
   } catch (error) {
     console.error('Error fetching exchange rate:', error);
     throw new Error('Failed to fetch exchange rate. Please try again.');
